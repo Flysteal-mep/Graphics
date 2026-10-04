@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
-add_subdirectory(glad)
+add_subdirectory(include/glad)
 
 file(GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(Software ${SRC_FILES})
