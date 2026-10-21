@@ -1,2 +1,5 @@
 # Graphics
-Simple graphics library for my apps
+%%what is it
+what dose it need
+devices and OS
+versions%%

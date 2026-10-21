@@ -1,21 +1,21 @@
-#include <glad/gl.h>
-#include <GLFW/glfw3.h>
+#include <iostream>
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
+
+
+void test()
+{
+    std::cout << "test\n";
+}
+
+PYBIND11_MODULE(test, handle)
+{
+    handle.doc() = "this is a test doc";
+    handle.def("create_window", &test);
+}
 
 int main()
 {
-    glfwInit();
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", nullptr, nullptr);
-    glfwMakeContextCurrent(window);
-
-    gladLoadGL(glfwGetProcAddress);
-
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    return 0;
 }
