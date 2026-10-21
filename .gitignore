@@ -1,2 +1,5 @@
 build
 *.sublime-workspace
+__pycache__/
+*.py[cod]
+# ^ for .pyc .pyo .pyd (random things)
