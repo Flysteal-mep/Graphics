@@ -1,10 +1,13 @@
 
 
 def run(graphics):
-    print(graphics.hello())
-    print("Hello from Python app!")
+    print('-', dir(graphics))
 
-    if graphics.create_window():
+    print(graphics.hello())
+    print("- Hello from Python")
+
+    if graphics.CreateDot():
         print("nice")
 
-    while graphics.
+    BlueCake = graphics.Cake()
+    BlueCake.Eat()
