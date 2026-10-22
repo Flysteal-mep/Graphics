@@ -6,15 +6,6 @@
 
 namespace py = pybind11;
 
-PYBIND11_EMBEDDED_MODULE(SkyLands, m)
-{
-    m.def("hello",
-        []()
-        {
-            return "Hello test string";
-        }
-    );
-}
 
 struct CoalWindowInfo
 {
@@ -111,6 +102,9 @@ int main()
         return 1;
     }
 
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
     CoalWindowInfo windowInfo{};
     CoalWindow window(windowInfo);
 
@@ -120,13 +114,17 @@ int main()
         return 1;
     }
 
-    if (gladLoadGL(glfwGetProcAddress) == 0)
+    if (!gladLoadGL(glfwGetProcAddress))
     {
         std::cerr << "- Failed to initialize GLAD\n";
         window.Destroy();
         glfwTerminate();
         return 1;
     }
+
+    glfwSwapInterval(0);
+    // glViewport(0, 0, , );
+
 
     py::scoped_interpreter interpreter{};
     // makes the pybind interpreter lifetime... I think
@@ -135,13 +133,14 @@ int main()
     py::module_ app = py::module_::import("app");
     // Runs python/app.py ^ & makes a cpp object
 
-    app.attr("Run")();
-    // Runs the def Run() in python
 
     while (!glfwWindowShouldClose(window.Get()))
     {
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0.1, 0.1, 0.1, 0.1);
+
+        app.attr("Run")();
+        // Runs the def Run() in python
 
         glfwSwapBuffers(window.Get());
         glfwPollEvents();
@@ -151,4 +150,24 @@ int main()
     glfwTerminate();
 
     return 0;
+}
+
+
+PYBIND11_EMBEDDED_MODULE(SkyLands, m)
+{
+    m.def("hello",
+        []()
+        {
+            return "Hello test string";
+        }
+    );
+    m.def("DrawDot",
+        [](float x, float y, float size)
+        {
+            glPointSize(size);
+            glBegin(GL_POINTS);
+                glVertex2f(x, y); // Center of the screen
+            glEnd();
+        }
+    );
 }
