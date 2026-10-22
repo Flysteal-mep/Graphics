@@ -10,6 +10,7 @@ set(PYBIND11_FINDPYTHON NEW)
 
 add_subdirectory(libs/pybind11)
 add_subdirectory(libs/glad)
+add_subdirectory(libs/glfw)
 
 
 file(GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
