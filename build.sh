@@ -15,12 +15,21 @@ echo "-- Jobs set to: $JOBS"
 
 
 RUN_EXEC=false
+CLEAN=false
 for arg in "$@"; do
     if  [[ "$arg" == "-r" ]]; then
         RUN_EXEC=true
     fi
+    if  [[ "$arg" == "-c" ]]; then
+        CLEAN=true
+    fi
 done
 
+if [[ "$CLEAN" == true ]]; then
+    echo "-- Cleaning: $BUILD_DIR"
+    rm -rf -- "$BUILD_DIR"
+    exit 0
+fi
 
 cmake -S "$SCRIPT_DIR" -B "$BUILD_DIR" -G Ninja
 CONFIGURE_EXIT=$?

@@ -1,8 +1,44 @@
 {
-	"folders":
-	[
-		{
-			"path": "."
-		}
-	]
+    "folders":
+    [
+        {
+            "path": ".",
+            "follow_symlinks": true,
+            // "file_exclude_patterns": ["LICENSE", ".gitmodules"],
+        }
+    ],
+    "settings":
+    {
+        "tab_size": 4,
+        "translate_tabs_to_spaces": true,
+        "word_wrap": false,
+        "trim_trailing_white_space_on_save": true,
+        "ensure_newline_at_eof_on_save": true
+    },
+    "build_systems":
+    [
+        {
+            "name": "List",
+            "working_dir": "${project_path}",
+            "shell_cmd": "ls -la",
+            "quiet": true,
+        },
+        {
+            "name": "Clean",
+            "working_dir": "${project_path}",
+            "shell_cmd": "${project_path}/build.sh -c",
+            "quiet": true
+        },
+        {
+            "name": "Build & Run",
+            "working_dir": "${project_path}",
+            "shell_cmd": "${project_path}/build.sh -r",
+            "quiet": true,
+            "cancel":
+            {
+                "kill": true
+            }
+        }
+    ]
 }
+

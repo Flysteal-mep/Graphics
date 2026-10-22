@@ -19,6 +19,7 @@ add_subdirectory(libs/glad)
 add_subdirectory(libs/glfw)
 # I will add glfw as a find_package(glfw3 ...)
 
+
 file(GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(Software ${SRC_FILES})
 
