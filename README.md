@@ -1,3 +1,5 @@
+[![Build](https://github.com/Flysteal-mep/Graphics/actions/workflows/main.yml/badge.svg)](https://github.com/Flysteal-mep/Graphics/actions/workflows/main.yml)
+
 # Graphics
 
 A graphics app for C++  
