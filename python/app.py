@@ -1,7 +1,7 @@
 import SkyLands as sky
 import time
 
-def Fps():
+def MsPerFrame():
     global frames, last_time
 
     frames += 1
@@ -17,9 +17,4 @@ last_time = time.perf_counter()
 
 
 def Run():
-    Fps()
-    sky.DrawDot(-0.3, 0.2, 50)
-    sky.DrawDot(-0.1, 0.0, 50)
-    sky.DrawDot(0.0, 0.0, 50)
-    sky.DrawDot(0.1, 0.0, 50)
-    sky.DrawDot(0.3, 0.2, 50)
+    MsPerFrame()
