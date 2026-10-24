@@ -1,3 +1,5 @@
+![Build status](https://github.com/Flysteal-mep/Graphics/actions/workflows/build.yml/badge.svg)
+
 # Graphics
 
 A graphics app for C++ that acts as an API
