@@ -18,6 +18,7 @@ set(GLFW_BUILD_DOCS OFF)
 add_subdirectory(libs/glad)
 add_subdirectory(libs/glfw)
 # I will add glfw as a find_package(glfw3 ...)
+add_subdirectory(libs/imgui)
 
 
 file(GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
@@ -29,4 +30,5 @@ target_link_libraries(Software PRIVATE
     # pybind11::embed *24*
     glad
     glfw
+    imgui
 )

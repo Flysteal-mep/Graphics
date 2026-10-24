@@ -3,6 +3,9 @@
 #include <GLFW/glfw3.h>
 #include "Butter.hpp"
 #include <iostream>
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 // namespace py = pybind11; *24*
 
@@ -38,30 +41,19 @@ int main()
     window.LoadGLAD();
 
 
-    float data[6] =
-    {
-         0.0,  0.5,
-        -0.5, -0.5,
-         0.5, -0.5
-    };
+    // Setup Dear ImGui context
+    // https://github.com/ocornut/imgui/wiki/Getting-Started
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
 
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // glBufferSubData I might need it in the future
-    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-    // Helps to 'decode' the vbo
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glEnableVertexAttribArray(0);
-    // Tels how the data is stored
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
-    // 0 is location 2 is the floats per stride, ---, ---, the stride size,---
-
-
-    Shader shader("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
+    // Setup Platform/Renderer backends
+    // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(window.Get(), true);
+    ImGui_ImplOpenGL3_Init();
 
 
     while (!glfwWindowShouldClose(window.Get()))
@@ -76,13 +68,27 @@ int main()
         glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        shader.Use();
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // Show demo window! :)
+        ImGui::DockSpaceOverViewport();
+        ImGui::ShowDemoWindow();
+
+        // (Your code clears your framebuffer, renders your other stuff etc.)
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window.Get());
     }
+
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
 
