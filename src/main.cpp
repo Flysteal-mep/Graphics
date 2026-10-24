@@ -30,21 +30,33 @@ int main()
     window.LoadGLAD();
 
 
-    // makes the pybind interpreter lifetime... I think
+    // Makes the pybind interpreter lifetime... I think
     py::scoped_interpreter interpreter{};
-
-    // Runs python/app.py ^ & makes a cpp object
+    // Imports sys to find and include the file
     py::module_::import("sys").attr("path").attr("insert")(0, "python");
+    // Runs python/app.py & makes a cpp object
     py::module_ app = py::module_::import("app");
 
 
-    // mep ._.
+    Shader shader("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
+
+
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
 
 
     while (!glfwWindowShouldClose(window.Get()))
     {
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0.1, 0.1, 0.1, 0.1);
+
+
+        shader.Use();
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
         // Runs the def Run() in python
         app.attr("Run")();

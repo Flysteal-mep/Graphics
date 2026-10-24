@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
+#include <sstream>
+#include <fstream>
 #include <filesystem>
+#include <iostream>
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -21,13 +24,14 @@ public:
     explicit CoalWindow(const CoalWindowInfo& info);
     ~CoalWindow();
 
-    // delete the copy constructor
+    // Delete the copy constructor
     CoalWindow(const CoalWindow&) = delete;
-    // delete the copy assignment opeerator (no more a = b)
+    // Delete the copy assignment opeerator (no more a = b)
     CoalWindow& operator=(const CoalWindow&) = delete;
 
-
+    // Move constructor transfers ownership from another object
     CoalWindow(CoalWindow&& other) noexcept;
+    // Move assignment transfers ownership to this object
     CoalWindow& operator=(CoalWindow&& other) noexcept;
 
     bool Create();
@@ -42,3 +46,27 @@ private:
     CoalWindowInfo m_info;
 };
 
+
+std::string ReadFile(const std::filesystem::path& filePath);
+
+class Shader
+{
+public:
+    Shader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
+
+    // Delete the copy constructor
+    Shader(const Shader&) = delete;
+    // Delete the copy assignment opeerator (no more a = b)
+    Shader& operator=(const Shader&) = delete;
+
+    void Use() const;
+
+    void Delete();
+private:
+    unsigned int m_programShader = 0;
+
+    unsigned int CompileShader(const std::filesystem::path& filePath, GLenum type);
+    void Attach(unsigned int shaderID);
+    void LinkProgram();
+
+};
