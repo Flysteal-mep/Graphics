@@ -15,11 +15,13 @@ CoalWindow::~CoalWindow()
     Destroy();
 }
 
+// https://en.cppreference.com/cpp/language/move_constructor !WARINUNG WHITE MODE!
 CoalWindow::CoalWindow(CoalWindow&& other) noexcept
     :m_window(std::exchange(other.m_window, nullptr)),
     m_info(std::move(other.m_info))
 {}
 
+// https://en.cppreference.com/cpp/language/move_assignment
 CoalWindow& CoalWindow::operator=(CoalWindow&& other) noexcept
 {
     if (this == &other)

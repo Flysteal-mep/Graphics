@@ -14,7 +14,7 @@ set(GLFW_BUILD_TESTS OFF)
 set(GLFW_BUILD_DOCS OFF)
 
 
-add_subdirectory(libs/pybind11)
+# add_subdirectory(libs/pybind11) *24*
 add_subdirectory(libs/glad)
 add_subdirectory(libs/glfw)
 # I will add glfw as a find_package(glfw3 ...)
@@ -26,7 +26,7 @@ add_executable(Software ${SRC_FILES})
 
 target_include_directories(Software PRIVATE "${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(Software PRIVATE
-    pybind11::embed
-    glfw
+    # pybind11::embed *24*
     glad
+    glfw
 )
