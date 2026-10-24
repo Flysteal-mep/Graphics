@@ -1,23 +1,21 @@
 # Graphics
 
-A graphics app for C++ that acts as an API
-(not sure :>)
+A graphics app for C++  
+(Not to sure about it, yet :>)
 
-It uses `pybind` as a git *sub-module*
-
+It uses `pybind`, `glfw`, and `imgui` as Git submodules.
 
 ## Structure
 
-Its structure is spit in 2, the C++ and the python part.
-The C++ side will try to be a graphics API.
-And with the python part we'll get a fast way to start new projects witch require a GUI.
-
+For now, only the C++ side is available. Python support is coming soon :)
 
 ### Extra
-#### The naming convention of the project
-- Class names will be *Pascal Case*
-- Function names will be *Pascal Case*
-- Variable names *camel Case*
-- Constants UPPER_CASE
-- For private members of a class I might use *\_m* or *m
-and insted of naming things with test I'll use random words
+
+#### Project naming conventions
+
+- Class names will use *PascalCase*.
+- Function names will use *PascalCase*.
+- Variable names will use *camelCase*.
+- Constants will use *UPPER_CASE*.
+- For private class members, I might use `_m` or `m_`.
+- Instead of naming things with “test,” I’ll use random words.
