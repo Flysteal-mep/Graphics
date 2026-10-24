@@ -1,4 +1,4 @@
-![Build status](https://github.com/Flysteal-mep/Graphics/actions/workflows/build.yml/badge.svg)
+[![Build](https://github.com/Flysteal-mep/Graphics/actions/workflows/main.yml/badge.svg)](https://github.com/Flysteal-mep/Graphics/actions/workflows/main.yml)
 
 # Graphics
 
