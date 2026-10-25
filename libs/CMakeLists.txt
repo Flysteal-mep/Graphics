@@ -39,3 +39,7 @@ target_link_libraries(projectLibs INTERFACE
     glfw
     imgui
 )
+
+target_include_directories(projectLibs INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/stb"
+)

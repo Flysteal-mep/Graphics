@@ -4,7 +4,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <utility>
-
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 CoalWindow::CoalWindow(const CoalWindowInfo& info)
     :m_info(info)
@@ -14,6 +16,11 @@ CoalWindow::~CoalWindow()
 {
     Destroy();
 }
+
+// // Delete the copy constructor
+// CoalWindow(const CoalWindow&) = delete;
+// // Delete the copy assignment opeerator (no more a = b)
+// CoalWindow& operator=(const CoalWindow&) = delete;
 
 // https://en.cppreference.com/cpp/language/move_constructor !WARINUNG WHITE MODE!
 CoalWindow::CoalWindow(CoalWindow&& other) noexcept
@@ -228,5 +235,55 @@ void Shader::LinkProgram()
         glGetProgramInfoLog(m_programShader, logLength, nullptr, log.data());
 
         throw std::runtime_error("- Failed to link shader program:\n" + log);
+    }
+}
+
+
+// PaperImgui::PaperImgui() = default;
+PaperImgui::~PaperImgui()
+{
+    Shutdown();
+}
+
+// // Delete the copy constructor
+// PaperImgui(const PaperImgui&) = delete;
+// // Delete the copy assignment opeerator (no more a = b)
+// PaperImgui& operator=(const PaperImgui&) = delete;
+
+
+void PaperImgui::Init(GLFWwindow* window)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+}
+
+void PaperImgui::NewFrame()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void PaperImgui::Render()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void PaperImgui::Shutdown()
+{
+    if (ImGui::GetCurrentContext())
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
     }
 }

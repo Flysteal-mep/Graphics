@@ -8,6 +8,7 @@
 struct GLFWwindow;
 struct GLFWmonitor;
 
+
 struct CoalWindowInfo
 {
     int width = 800;
@@ -68,5 +69,26 @@ private:
     unsigned int CompileShader(const std::filesystem::path& filePath, GLenum type);
     void Attach(unsigned int shaderID);
     void LinkProgram();
+
+};
+
+
+class PaperImgui
+{
+public:
+    PaperImgui() = default;
+    ~PaperImgui();
+
+    // Delete the copy constructor
+    PaperImgui(const PaperImgui&) = delete;
+    // Delete the copy assignment opeerator (no more a = b)
+    PaperImgui& operator=(const PaperImgui&) = delete;
+
+    void Init(GLFWwindow* window);
+    void NewFrame();
+    void Render();
+    void Shutdown();
+
+private:
 
 };

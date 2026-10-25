@@ -4,10 +4,74 @@
 #include "Butter.hpp"
 #include <iostream>
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+
+#define _CRT_SECURE_NO_WARNINGS
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+// Simple helper function to load an image into a OpenGL texture with common settings
+bool LoadTextureFromMemory(const void* data, size_t data_size, GLuint* out_texture, int* out_width, int* out_height)
+{
+    // Load from file
+    int image_width = 0;
+    int image_height = 0;
+    unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
+    if (image_data == NULL)
+    {
+        return false;
+    }
+
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Upload pixels into texture
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+    stbi_image_free(image_data);
+
+    *out_texture = image_texture;
+    *out_width = image_width;
+    *out_height = image_height;
+
+    return true;
+}
+
+// Open and read a file, then forward to LoadTextureFromMemory()
+bool LoadTextureFromFile(const char* file_name, GLuint* out_texture, int* out_width, int* out_height)
+{
+    FILE* f = fopen(file_name, "rb");
+    if (f == NULL)
+        return false;
+    fseek(f, 0, SEEK_END);
+    size_t file_size = (size_t)ftell(f);
+    if (file_size == -1)
+        return false;
+    fseek(f, 0, SEEK_SET);
+    void* file_data = IM_ALLOC(file_size);
+    fread(file_data, 1, file_size, f);
+    fclose(f);
+    bool ret = LoadTextureFromMemory(file_data, file_size, out_texture, out_width, out_height);
+    IM_FREE(file_data);
+    return ret;
+}
+
 
 // namespace py = pybind11; *24*
+
+
+void WindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glViewport(0, 0, width, height);
+}
 
 
 int main()
@@ -35,25 +99,17 @@ int main()
     #endif
 
     CoalWindowInfo windowInfo{};
-    CoalWindow window(windowInfo);
 
+    CoalWindow window(windowInfo);
     window.Create();
     window.LoadGLAD();
 
 
-    // Setup Dear ImGui context
-    // https://github.com/ocornut/imgui/wiki/Getting-Started
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
+    glfwSetFramebufferSizeCallback(window.Get(), WindowSizeCallback);
 
-    // Setup Platform/Renderer backends
-    // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    ImGui_ImplGlfw_InitForOpenGL(window.Get(), true);
-    ImGui_ImplOpenGL3_Init();
+
+    PaperImgui imgui;
+    imgui.Init(window.Get());
 
 
     while (!glfwWindowShouldClose(window.Get()))
@@ -65,35 +121,42 @@ int main()
         // app.attr("Run")(); *24*
 
 
-        glClearColor(0.1, 0.1, 0.1, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        imgui.NewFrame();
 
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // Show demo window! :)
         ImGui::DockSpaceOverViewport();
         ImGui::ShowDemoWindow();
 
-        // (Your code clears your framebuffer, renders your other stuff etc.)
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui::Begin("Render");
+
+        // https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples
+        // ImGui::Text("pointer = %x", image);
+        // ImGui::Text("size = %d x %d", image_width, image_height);
+        // ImGui::Image((ImTextureID)(intptr_t)image, ImVec2(image_width, image_height));
+        int my_image_width = 0;
+        int my_image_height = 0;
+        unsigned int  my_image_texture = 0;
+        bool ret = LoadTextureFromFile("src/MyImage01.jpg", &my_image_texture, &my_image_width, &my_image_height);
+        IM_ASSERT(ret);
+        ImGui::Image((ImTextureID)my_image_texture, ImVec2(my_image_width, my_image_height));
+
+        ImGui::End();
+
+        imgui.Render();
+
 
         glfwSwapBuffers(window.Get());
     }
 
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    // During cleanup, while the GL context is still active:
+    // glDeleteTextures(1, &image);
+
 
     glfwTerminate();
 
     return 0;
 }
+
 
 // PYBIND11_EMBEDDED_MODULE(SkyLands, m) *24*
 // { *24*
