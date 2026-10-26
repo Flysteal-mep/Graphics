@@ -4,10 +4,18 @@
 #include "Butter.hpp"
 #include <iostream>
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+
 
 // namespace py = pybind11; *24*
+
+
+void WindowSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glViewport(0, 0, width, height);
+}
 
 
 int main()
@@ -35,25 +43,21 @@ int main()
     #endif
 
     CoalWindowInfo windowInfo{};
-    CoalWindow window(windowInfo);
 
+    CoalWindow window(windowInfo);
     window.Create();
     window.LoadGLAD();
 
 
-    // Setup Dear ImGui context
-    // https://github.com/ocornut/imgui/wiki/Getting-Started
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
+    glfwSetFramebufferSizeCallback(window.Get(), WindowSizeCallback);
+    glfwSwapInterval(0);
 
-    // Setup Platform/Renderer backends
-    // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
-    ImGui_ImplGlfw_InitForOpenGL(window.Get(), true);
-    ImGui_ImplOpenGL3_Init();
+
+    PaperImgui imgui;
+    imgui.Init(window.Get());
+
+
+    KiwiImage image("src/MyImage01.jpg");
 
 
     while (!glfwWindowShouldClose(window.Get()))
@@ -65,35 +69,32 @@ int main()
         // app.attr("Run")(); *24*
 
 
-        glClearColor(0.1, 0.1, 0.1, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        imgui.NewFrame();
 
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // Show demo window! :)
         ImGui::DockSpaceOverViewport();
         ImGui::ShowDemoWindow();
 
-        // (Your code clears your framebuffer, renders your other stuff etc.)
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ImGui::Begin("Render");
+
+        // https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples
+        ImGui::Text("File: %s", image.GetPath().c_str());
+        ImGui::Text(" size: %d, %d", image.GetWidth(), image.GetHeight());
+        ImGui::Image(image.GetID(), ImVec2(image.GetWidth(), image.GetHeight()));
+
+        ImGui::End();
+
+        imgui.Render();
+
 
         glfwSwapBuffers(window.Get());
     }
 
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
     glfwTerminate();
 
     return 0;
 }
+
 
 // PYBIND11_EMBEDDED_MODULE(SkyLands, m) *24*
 // { *24*

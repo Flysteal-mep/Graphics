@@ -2,9 +2,15 @@
 #include <GLFW/glfw3.h>
 #include "Butter.hpp"
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <utility>
-
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#define _CRT_SECURE_NO_WARNINGS
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 CoalWindow::CoalWindow(const CoalWindowInfo& info)
     :m_info(info)
@@ -24,14 +30,13 @@ CoalWindow::CoalWindow(CoalWindow&& other) noexcept
 // https://en.cppreference.com/cpp/language/move_assignment
 CoalWindow& CoalWindow::operator=(CoalWindow&& other) noexcept
 {
-    if (this == &other)
+    if (this != &other)
     {
-        return *this;
-    }
+        Destroy();
 
-    Destroy();
-    m_window = std::exchange(other.m_window, nullptr);
-    m_info = std::move(other.m_info);
+        m_window = std::exchange(other.m_window, nullptr);
+        m_info = std::move(other.m_info);
+    }
 
     return *this;
 }
@@ -156,11 +161,6 @@ Shader::Shader(const std::filesystem::path& vertexPath, const std::filesystem::p
     glDeleteShader(fragmentShader);
 }
 
-// // Delete the copy constructor
-// Shader(const Shader&) = delete;
-// // Delete the copy assignment opeerator (no more a = b)
-// Shader& operator=(const Shader&) = delete;
-
 void Shader::Use() const
 {
     glUseProgram(m_programShader);
@@ -229,4 +229,123 @@ void Shader::LinkProgram()
 
         throw std::runtime_error("- Failed to link shader program:\n" + log);
     }
+}
+
+
+PaperImgui::~PaperImgui()
+{
+    Shutdown();
+}
+
+void PaperImgui::Init(GLFWwindow* window)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+}
+
+void PaperImgui::NewFrame()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void PaperImgui::Render()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void PaperImgui::Shutdown()
+{
+    if (ImGui::GetCurrentContext())
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+    }
+}
+
+
+KiwiImage::KiwiImage(const std::filesystem::path& filePath)
+    :m_filePath(filePath)
+{
+    // ..filesystem::exists() apparently is not just for files
+    if (!std::filesystem::is_regular_file(m_filePath))
+    {
+        std::cerr << "- File path is invalid: " << m_filePath << '\n';
+    }
+
+    // https://github.com/nothings/stb
+    unsigned char* data = stbi_load(m_filePath.c_str(), &m_width, &m_height, &m_channels, 4);
+
+    // https://stackoverflow.com/questions/49462889/stbi-load-doesnt-return-any-value
+    if (!data)
+    {
+        std::cerr << "- Failed to load image with stbi" << '\n';
+        std::cerr << stbi_failure_reason();
+    }
+
+    glGenTextures(1, &m_glTextureID);
+    glBindTexture(GL_TEXTURE_2D, m_glTextureID);
+
+    // https://docs.gl/gl4/glTexImage2D
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA8,
+        m_width,
+        m_height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+       data
+    );
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
+}
+
+KiwiImage::~KiwiImage()
+{
+    Delete();
+}
+
+void KiwiImage::Delete()
+{
+    if (m_glTextureID)
+    {
+        glDeleteTextures(1, &m_glTextureID);
+        m_glTextureID = 0;
+    }
+}
+
+unsigned int KiwiImage::GetID() const
+{
+    return m_glTextureID;
+}
+
+int KiwiImage::GetWidth() const
+{
+    return m_width;
+}
+
+int KiwiImage::GetHeight() const
+{
+    return m_height;
+}
+
+std::filesystem::path KiwiImage::GetPath() const
+{
+    return m_filePath;
 }

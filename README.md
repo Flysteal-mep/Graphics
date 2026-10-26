@@ -2,8 +2,8 @@
 
 # Graphics
 
-A graphics app for C++  
-(Not to sure about it, yet :>)
+A graphics app for C++
+Not to sure about it, yet :>
 
 It uses `pybind`, `glfw`, and `imgui` as Git submodules.
 
