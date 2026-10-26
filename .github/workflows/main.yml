@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -17,3 +17,10 @@ jobs:
 
       - name: Build project
         run: bash ./build.sh
+        
+      - name: Get binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-binary
+          path: build/Software
+          if-no-files-found: error
