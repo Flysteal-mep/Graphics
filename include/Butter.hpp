@@ -1,9 +1,6 @@
 #pragma once
 #include <string>
-#include <sstream>
-#include <fstream>
 #include <filesystem>
-#include <iostream>
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -60,9 +57,14 @@ public:
     // Delete the copy assignment opeerator (no more a = b)
     Shader& operator=(const Shader&) = delete;
 
-    void Use() const;
+    // Delete the move constructor
+    Shader(Shader&& other) = delete;
+    // Delete the move assignment
+    Shader& operator=(Shader&& other) = delete;
 
+    void Use() const;
     void Delete();
+
 private:
     unsigned int m_programShader = 0;
 
@@ -84,6 +86,11 @@ public:
     // Delete the copy assignment opeerator (no more a = b)
     PaperImgui& operator=(const PaperImgui&) = delete;
 
+    // Delete the move constructor
+    PaperImgui(PaperImgui&& other) = delete;
+    // Delete the move assignment
+    PaperImgui& operator=(PaperImgui&& other) = delete;
+
     void Init(GLFWwindow* window);
     void NewFrame();
     void Render();
@@ -100,10 +107,21 @@ public:
     KiwiImage(const std::filesystem::path& filePath);
     ~KiwiImage();
 
+    // Delete the copy constructor
+    KiwiImage(const KiwiImage&) = delete;
+    // Delete the copy assignment opeerator (no more a = b)
+    KiwiImage& operator=(const KiwiImage&) = delete;
+
+    // Delete the move constructor
+    KiwiImage(KiwiImage&& other) = delete;
+    // Delete the move assignment
+    KiwiImage& operator=(KiwiImage&& other) = delete;
+
     void Delete();
     unsigned int GetID() const;
     int GetWidth() const;
     int GetHeight() const;
+    std::filesystem::path GetPath() const;
 
 private:
     unsigned int m_glTextureID;
@@ -111,4 +129,5 @@ private:
     int m_width;
     int m_height;
     int m_channels;
+    std::filesystem::path m_filePath;
 };

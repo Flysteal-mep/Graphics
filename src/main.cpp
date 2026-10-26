@@ -77,6 +77,8 @@ int main()
         ImGui::Begin("Render");
 
         // https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples
+        ImGui::Text("File: %s", image.GetPath().c_str());
+        ImGui::Text(" size: %d, %d", image.GetWidth(), image.GetHeight());
         ImGui::Image(image.GetID(), ImVec2(image.GetWidth(), image.GetHeight()));
 
         ImGui::End();

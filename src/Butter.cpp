@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "Butter.hpp"
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <utility>
 #include "imgui.h"
@@ -20,11 +21,6 @@ CoalWindow::~CoalWindow()
     Destroy();
 }
 
-// // Delete the copy constructor
-// CoalWindow(const CoalWindow&) = delete;
-// // Delete the copy assignment opeerator (no more a = b)
-// CoalWindow& operator=(const CoalWindow&) = delete;
-
 // https://en.cppreference.com/cpp/language/move_constructor !WARINUNG WHITE MODE!
 CoalWindow::CoalWindow(CoalWindow&& other) noexcept
     :m_window(std::exchange(other.m_window, nullptr)),
@@ -34,14 +30,13 @@ CoalWindow::CoalWindow(CoalWindow&& other) noexcept
 // https://en.cppreference.com/cpp/language/move_assignment
 CoalWindow& CoalWindow::operator=(CoalWindow&& other) noexcept
 {
-    if (this == &other)
+    if (this != &other)
     {
-        return *this;
-    }
+        Destroy();
 
-    Destroy();
-    m_window = std::exchange(other.m_window, nullptr);
-    m_info = std::move(other.m_info);
+        m_window = std::exchange(other.m_window, nullptr);
+        m_info = std::move(other.m_info);
+    }
 
     return *this;
 }
@@ -166,11 +161,6 @@ Shader::Shader(const std::filesystem::path& vertexPath, const std::filesystem::p
     glDeleteShader(fragmentShader);
 }
 
-// // Delete the copy constructor
-// Shader(const Shader&) = delete;
-// // Delete the copy assignment opeerator (no more a = b)
-// Shader& operator=(const Shader&) = delete;
-
 void Shader::Use() const
 {
     glUseProgram(m_programShader);
@@ -242,17 +232,10 @@ void Shader::LinkProgram()
 }
 
 
-// PaperImgui::PaperImgui() = default;
 PaperImgui::~PaperImgui()
 {
     Shutdown();
 }
-
-// // Delete the copy constructor
-// PaperImgui(const PaperImgui&) = delete;
-// // Delete the copy assignment opeerator (no more a = b)
-// PaperImgui& operator=(const PaperImgui&) = delete;
-
 
 void PaperImgui::Init(GLFWwindow* window)
 {
@@ -293,32 +276,44 @@ void PaperImgui::Shutdown()
 
 
 KiwiImage::KiwiImage(const std::filesystem::path& filePath)
+    :m_filePath(filePath)
 {
-    unsigned char* data = stbi_load(filePath.c_str(), &m_width, &m_height, &m_channels, 4);
-
-    if (data)
+    // ..filesystem::exists() apparently is not just for files
+    if (!std::filesystem::is_regular_file(m_filePath))
     {
-        glGenTextures(1, &m_glTextureID);
-        glBindTexture(GL_TEXTURE_2D, m_glTextureID);
-
-        // https://docs.gl/gl4/glTexImage2D
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA8,
-            m_width,
-            m_height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-           data
-        );
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
+        std::cerr << "- File path is invalid: " << m_filePath << '\n';
     }
+
+    // https://github.com/nothings/stb
+    unsigned char* data = stbi_load(m_filePath.c_str(), &m_width, &m_height, &m_channels, 4);
+
+    // https://stackoverflow.com/questions/49462889/stbi-load-doesnt-return-any-value
+    if (!data)
+    {
+        std::cerr << "- Failed to load image with stbi" << '\n';
+        std::cerr << stbi_failure_reason();
+    }
+
+    glGenTextures(1, &m_glTextureID);
+    glBindTexture(GL_TEXTURE_2D, m_glTextureID);
+
+    // https://docs.gl/gl4/glTexImage2D
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA8,
+        m_width,
+        m_height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+       data
+    );
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
 }
 
 KiwiImage::~KiwiImage()
@@ -328,7 +323,11 @@ KiwiImage::~KiwiImage()
 
 void KiwiImage::Delete()
 {
-    glDeleteTextures(1, &m_glTextureID);
+    if (m_glTextureID)
+    {
+        glDeleteTextures(1, &m_glTextureID);
+        m_glTextureID = 0;
+    }
 }
 
 unsigned int KiwiImage::GetID() const
@@ -344,4 +343,9 @@ int KiwiImage::GetWidth() const
 int KiwiImage::GetHeight() const
 {
     return m_height;
+}
+
+std::filesystem::path KiwiImage::GetPath() const
+{
+    return m_filePath;
 }
