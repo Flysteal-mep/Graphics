@@ -11,6 +11,7 @@ set(GLFW_BUILD_DOCS OFF)
 add_subdirectory(glad)
 add_subdirectory(glfw)
 # I will add glfw as a find_package(glfw3 ...)
+add_subdirectory(glm)
 
 
 add_library(imgui STATIC
@@ -38,6 +39,7 @@ target_link_libraries(projectLibs INTERFACE
     glad
     glfw
     imgui
+    # glm for later *24*
 )
 
 target_include_directories(projectLibs INTERFACE

@@ -7,6 +7,9 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#define _CRT_SECURE_NO_WARNINGS
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 CoalWindow::CoalWindow(const CoalWindowInfo& info)
     :m_info(info)
@@ -286,4 +289,59 @@ void PaperImgui::Shutdown()
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
+}
+
+
+KiwiImage::KiwiImage(const std::filesystem::path& filePath)
+{
+    unsigned char* data = stbi_load(filePath.c_str(), &m_width, &m_height, &m_channels, 4);
+
+    if (data)
+    {
+        glGenTextures(1, &m_glTextureID);
+        glBindTexture(GL_TEXTURE_2D, m_glTextureID);
+
+        // https://docs.gl/gl4/glTexImage2D
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA8,
+            m_width,
+            m_height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+           data
+        );
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+}
+
+KiwiImage::~KiwiImage()
+{
+    Delete();
+}
+
+void KiwiImage::Delete()
+{
+    glDeleteTextures(1, &m_glTextureID);
+}
+
+unsigned int KiwiImage::GetID() const
+{
+    return m_glTextureID;
+}
+
+int KiwiImage::GetWidth() const
+{
+    return m_width;
+}
+
+int KiwiImage::GetHeight() const
+{
+    return m_height;
 }

@@ -92,3 +92,23 @@ public:
 private:
 
 };
+
+
+class KiwiImage
+{
+public:
+    KiwiImage(const std::filesystem::path& filePath);
+    ~KiwiImage();
+
+    void Delete();
+    unsigned int GetID() const;
+    int GetWidth() const;
+    int GetHeight() const;
+
+private:
+    unsigned int m_glTextureID;
+
+    int m_width;
+    int m_height;
+    int m_channels;
+};
