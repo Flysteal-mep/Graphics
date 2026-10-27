@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <filesystem>
+#include "imgui.h"
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -8,8 +9,8 @@ struct GLFWmonitor;
 
 struct CoalWindowInfo
 {
-    int width = 800;
-    int height = 800;
+    int width = 500;
+    int height = 500;
     std::string title = "SkyLands";
     GLFWmonitor* monitor = nullptr;
     GLFWwindow* share = nullptr;
@@ -37,6 +38,15 @@ public:
     GLFWwindow* Get() const;
     void Destroy();
     void LoadGLAD();
+
+    int GetWidth() const
+    {
+        return m_info.width;
+    }
+    int GetHeight() const
+    {
+        return m_info.height;
+    }
 
 
 private:
@@ -75,10 +85,15 @@ private:
 };
 
 
+struct PaperImguiInfo
+{
+    ImGuiConfigFlags configFlags = ImGuiConfigFlags_None;
+};
+
 class PaperImgui
 {
 public:
-    PaperImgui() = default;
+    PaperImgui(const PaperImguiInfo& info);
     ~PaperImgui();
 
     // Delete the copy constructor
@@ -97,7 +112,7 @@ public:
     void Shutdown();
 
 private:
-
+    PaperImguiInfo m_info;
 };
 
 
@@ -121,7 +136,7 @@ public:
     unsigned int GetID() const;
     int GetWidth() const;
     int GetHeight() const;
-    std::filesystem::path GetPath() const;
+    const std::filesystem::path& GetPath() const;
 
 private:
     unsigned int m_glTextureID;

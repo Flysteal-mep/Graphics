@@ -232,6 +232,11 @@ void Shader::LinkProgram()
 }
 
 
+PaperImgui::PaperImgui(const PaperImguiInfo& info)
+    :m_info(info)
+{
+}
+
 PaperImgui::~PaperImgui()
 {
     Shutdown();
@@ -242,10 +247,7 @@ void PaperImgui::Init(GLFWwindow* window)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    ImGui::GetIO().ConfigFlags |= m_info.configFlags;
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
@@ -307,7 +309,7 @@ KiwiImage::KiwiImage(const std::filesystem::path& filePath)
         0,
         GL_RGBA,
         GL_UNSIGNED_BYTE,
-       data
+        data
     );
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -345,7 +347,7 @@ int KiwiImage::GetHeight() const
     return m_height;
 }
 
-std::filesystem::path KiwiImage::GetPath() const
+const std::filesystem::path& KiwiImage::GetPath() const
 {
     return m_filePath;
 }
