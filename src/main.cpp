@@ -1,33 +1,17 @@
-// #include <pybind11/embed.h> *24*
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "Butter.hpp"
 #include <iostream>
-#include "imgui.h"
-
-
-// namespace py = pybind11; *24*
 
 
 void WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
-    glClearColor(0.1, 0.1, 0.1, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     glViewport(0, 0, width, height);
 }
 
 
 int main()
 {
-    // Makes the pybind interpreter lifetime... I think
-    // py::scoped_interpreter interpreter{}; *24*
-    // Imports sys to find and include the file
-    // py::module_::import("sys").attr("path").attr("insert")(0, "python"); *24*
-    // Runs python/app.py & makes a cpp object
-    // py::module_ app = py::module_::import("app"); *24*
-
-
     if (!glfwInit())
     {
         std::cerr << "- Failed to initialize GLFW\n";
@@ -42,8 +26,8 @@ int main()
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
     #endif
 
-    CoalWindowInfo windowInfo{};
 
+    CoalWindowInfo windowInfo{};
     CoalWindow window(windowInfo);
     window.Create();
     window.LoadGLAD();
@@ -53,38 +37,138 @@ int main()
     glfwSwapInterval(0);
 
 
-    PaperImgui imgui;
+    PaperImguiInfo imguiInfo{};
+    imguiInfo.configFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    imguiInfo.configFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    imguiInfo.configFlags |= ImGuiConfigFlags_DockingEnable;
+
+    PaperImgui imgui(imguiInfo);
     imgui.Init(window.Get());
 
 
-    KiwiImage image("src/MyImage01.jpg");
+
+    int sceneWidth = 800;
+    int sceneHeight = 600;
+    unsigned int fbo = 0;
+    unsigned int texture = 0;
+    unsigned int rbo = 0;
+
+    // https://learnopengl.com/Advanced-OpenGL/Framebuffers
+    // https://uysalaltas.github.io/2022/01/09/OpenGL_Imgui.html
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // https://docs.gl/gl4/glTexImage2D
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGB8,
+        sceneWidth,
+        sceneHeight,
+        0,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        nullptr
+    );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER,
+        GL_COLOR_ATTACHMENT0,
+        GL_TEXTURE_2D,
+        texture,
+        0
+    );
+
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, sceneWidth, sceneHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    // It needs some data (color, depth or stencil) to be valid
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cerr << "Scene framebuffer is incomplete\n";
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+    float vertices[6] =
+    {
+        -0.5, -0.5,
+        0.5, -0.5,
+        0.0,  0.5
+    };
+
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    Shader shader("src/shaders/vertex.glsl", "src/shaders/fragment.glsl");
 
 
     while (!glfwWindowShouldClose(window.Get()))
     {
         glfwPollEvents();
 
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-        // Runs the def Run() in python
-        // app.attr("Run")(); *24*
+            glViewport(0, 0, sceneWidth, sceneHeight);
+
+            glClearColor(0.1, 0.1, 0.1, 1.0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        imgui.NewFrame();
+            shader.Use();
+            glBindVertexArray(vao);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(0);
 
-        ImGui::DockSpaceOverViewport();
-        ImGui::ShowDemoWindow();
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
 
-        ImGui::Begin("Render");
+        {
+            glViewport(0, 0, window.GetWidth(), window.GetHeight());
 
-        // https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples
-        ImGui::Text("File: %s", image.GetPath().c_str());
-        ImGui::Text(" size: %d, %d", image.GetWidth(), image.GetHeight());
-        ImGui::Image(image.GetID(), ImVec2(image.GetWidth(), image.GetHeight()));
+            glClearColor(0.1, 0.1, 0.1, 1.0);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ImGui::End();
+            imgui.NewFrame();
+            ImGui::DockSpaceOverViewport(
+                0,
+                ImGui::GetMainViewport(),
+                ImGuiDockNodeFlags_PassthruCentralNode
+            );
 
-        imgui.Render();
+            ImGui::Begin("Render scene");
 
+            // https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples
+            ImGui::Image(
+                texture,
+                ImGui::GetContentRegionAvail(),
+                // to make it right side up
+                ImVec2(0, 1),
+                ImVec2(1, 0)
+            );
+
+            ImGui::End();
+
+            ImGui::ShowDemoWindow();
+
+            imgui.Render();
+        }
 
         glfwSwapBuffers(window.Get());
     }
@@ -94,14 +178,3 @@ int main()
 
     return 0;
 }
-
-
-// PYBIND11_EMBEDDED_MODULE(SkyLands, m) *24*
-// { *24*
-//     m.def("SetBackground", *24*
-//         [](float r, float g, float b, float a) *24*
-//         { *24*
-//             glClearColor(r, g, b, a); *24*
-//         } *24*
-//     ); *24*
-// } *24*
