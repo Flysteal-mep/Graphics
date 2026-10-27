@@ -46,7 +46,6 @@ int main()
     imgui.Init(window.Get());
 
 
-
     unsigned int fbo = 0;
     unsigned int texture = 0;
     unsigned int rbo = 0;
@@ -61,17 +60,27 @@ int main()
 
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
+    // https://docs.gl/gl4/glTexImage2D
     glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGB8,
-        sceneWidth, sceneHeight, 0,
-        GL_RGB, GL_UNSIGNED_BYTE, nullptr
+        GL_TEXTURE_2D,
+        0,
+        GL_RGB8,
+        sceneWidth,
+        sceneHeight,
+        0,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        nullptr
     );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-        GL_TEXTURE_2D, texture, 0
+        GL_FRAMEBUFFER,
+        GL_COLOR_ATTACHMENT0,
+        GL_TEXTURE_2D,
+        texture,
+        0
     );
 
     glGenRenderbuffers(1, &rbo);
@@ -86,7 +95,6 @@ int main()
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 
     float vertices[6] =
