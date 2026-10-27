@@ -46,12 +46,12 @@ int main()
     imgui.Init(window.Get());
 
 
-    unsigned int fbo = 0;
-    unsigned int texture = 0;
-    unsigned int rbo = 0;
 
     int sceneWidth = 800;
     int sceneHeight = 600;
+    unsigned int fbo = 0;
+    unsigned int texture = 0;
+    unsigned int rbo = 0;
 
     // https://learnopengl.com/Advanced-OpenGL/Framebuffers
     // https://uysalaltas.github.io/2022/01/09/OpenGL_Imgui.html
@@ -127,7 +127,7 @@ int main()
 
             glViewport(0, 0, sceneWidth, sceneHeight);
 
-            glClearColor(0.1, 0.3, 0.1, 1.0);
+            glClearColor(0.1, 0.1, 0.1, 1.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -142,7 +142,7 @@ int main()
         {
             glViewport(0, 0, window.GetWidth(), window.GetHeight());
 
-            glClearColor(0.1, 0.1, 0.3, 1.0);
+            glClearColor(0.1, 0.1, 0.1, 1.0);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             imgui.NewFrame();
@@ -164,6 +164,8 @@ int main()
             );
 
             ImGui::End();
+
+            ImGui::ShowDemoWindow();
 
             imgui.Render();
         }
