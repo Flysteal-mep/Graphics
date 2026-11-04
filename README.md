@@ -2,22 +2,18 @@
 
 # Graphics
 
-A graphics app for C++
+A graphics app for C
 Not to sure about it, yet :>
-
-It uses `pybind`, `glfw`, and `imgui` as Git submodules.
 
 ## Structure
 
-For now, only the C++ side is available. Python support is coming soon :)
+For now, only the C. Python support may come soon :)
 
 ### Extra
 
 #### Project naming conventions
 
-- Class names will use *PascalCase*.
 - Function names will use *PascalCase*.
-- Variable names will use *camelCase*.
-- Constants will use *UPPER_CASE*.
-- For private class members, I might use `_m` or `m_`.
+- Variable names will use *camelCase* or *snake_case*.
+- Constants and macros *UPPER_SNAKE_CASE*.
 - Instead of naming things with “test,” I’ll use random words.

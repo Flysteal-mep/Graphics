@@ -26,19 +26,29 @@
         {
             "name": "Clean",
             "working_dir": "${project_path}",
-            "shell_cmd": "${project_path}/build.sh -c",
+            "shell_cmd": "${project_path}/build.sh --clean",
             "quiet": true
         },
         {
-            "name": "Build & Run",
+            "name": "Build & Run Debug",
             "working_dir": "${project_path}",
-            "shell_cmd": "${project_path}/build.sh -r",
+            "shell_cmd": "${project_path}/build.sh --build-type \"Debug\" --build --run",
             "quiet": true,
             "cancel":
             {
                 "kill": true
             }
-        }
+        },
+        {
+            "name": "Build & Run Release",
+            "working_dir": "${project_path}",
+            "shell_cmd": "${project_path}/build.sh --build --run",
+            "quiet": true,
+            "cancel":
+            {
+                "kill": true
+            }
+        },
     ]
 }
 

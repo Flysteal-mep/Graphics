@@ -1,7 +1,6 @@
-build
+build/
+vendor/*
+libs/
 *.sublime-workspace
-__pycache__/
-*.py[cod]
-# ^ for .pyc .pyo .pyd (random things)
-imgui.ini
-temp.txt
+temp/
+.gitmodules
