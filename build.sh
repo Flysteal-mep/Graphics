@@ -14,7 +14,7 @@ BUILD_COMPILER="clang"
 BUILD_JOBS="$(nproc --ignore 2)"
 BUILD_SYSTEM="Ninja"
 BUILD_TYPE="Release"
-OUTPUT_FILE="Software"
+OUTPUT_FILE="a.out"
 
 CLEAN=0
 BUILD=0

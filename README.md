@@ -1,4 +1,4 @@
-[![Build](https://github.com/Flysteal-mep/Graphics/actions/workflows/main.yml/badge.svg)](https://github.com/Flysteal-mep/Graphics/actions/workflows/main.yml)
+dev branch
 
 # Graphics
 
@@ -9,7 +9,19 @@ Not to sure about it, yet :>
 
 For now, only the C. Python support may come soon :)
 
-### Extra
+## How to build
+
+In the project folder:
+
+1. Make sure 'build.sh' has run permision
+```bash
+chmod +x ./build.sh
+```
+
+2. then build and run:
+```bash
+    ./build.sh --run
+```
 
 #### Project naming conventions
 

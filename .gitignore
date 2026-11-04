@@ -1,6 +1,3 @@
 build/
-vendor/*
-libs/
-*.sublime-workspace
 temp/
-.gitmodules
+*.sublime-workspace

@@ -32,7 +32,7 @@
         {
             "name": "Build & Run Debug",
             "working_dir": "${project_path}",
-            "shell_cmd": "${project_path}/build.sh --build-type \"Debug\" --build --run",
+            "shell_cmd": "${project_path}/build.sh --build-type \"Debug\" --run -o \"Software\"",
             "quiet": true,
             "cancel":
             {
@@ -42,7 +42,7 @@
         {
             "name": "Build & Run Release",
             "working_dir": "${project_path}",
-            "shell_cmd": "${project_path}/build.sh --build --run",
+            "shell_cmd": "${project_path}/build.sh --run -o \"Software\"",
             "quiet": true,
             "cancel":
             {

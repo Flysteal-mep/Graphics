@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 # hard coded for now
 option(ENABLE_MSAN "Enable MemorySanitizer" ON)
-if(ENABLE_MSAN AND DEBUG)
+if(ENABLE_MSAN AND CMAKE_BUILD_TYPE)
     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
         message(FATAL_ERROR "MemorySanitizer requires Clang")
     endif()
@@ -31,5 +31,5 @@ target_include_directories(Software PUBLIC "${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(Software PRIVATE projectLibs)
 
 if(DEFINED OUTPUT_NAME)
-    set_target_properties(Software PROPERTIES ${OUTPUT_NAME} app)
+    set_target_properties(Software PROPERTIES OUTPUT_NAME ${OUTPUT_NAME})
 endif()
