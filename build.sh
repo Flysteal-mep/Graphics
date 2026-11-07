@@ -77,6 +77,7 @@ Args()
                 shift
                 ;;
             --run)
+                BUILD=1
                 RUN=1
                 shift
                 ;;
