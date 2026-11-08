@@ -2,6 +2,15 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
+#include <string.h>
+
+typedef unsigned int  uint;
+
+typedef struct
+{
+    char name[32];
+    float Kd[3];
+} Material;
 
 char* ReadFile(const char* filePath)
 {
@@ -124,39 +133,149 @@ int main(void)
         return -1;
     }
 
-    float vertices[] =
+#define MATERIAL_SIZE 2
+    Material materials[MATERIAL_SIZE];
+
     {
-         0.5,  0.5, 0.0,  0.8, 0.0, 0.0,
-         0.5, -0.5, 0.0,  0.8, 0.0, 0.0,
-        -0.5, -0.5, 0.0,  0.8, 0.0, 0.0,
-        -0.5,  0.5, 0.0,  0.8, 0.0, 0.0,
+    uint materials_count = 0;
 
+        FILE* file = fopen("rsc/obj/Data.mtl", "r");
 
-    };
+        if (NULL == file)
+        {
+            return -1;
+            perror("- Failed to open: mtl path");
+        }
+
+        char line[256] = {0};
+        while (NULL != fgets(line, sizeof(line), file))
+        {
+            char type[32] = {0};
+            if (1 != sscanf(line, "%31s", type))
+            {
+                continue;
+            }
+
+            if (0 == strcmp("newmtl", type))
+            {
+                sscanf(line, "%*s %31s",
+                    materials[materials_count].name
+                );
+
+                materials_count++;
+            }
+
+            if (0 == strcmp("Kd", type))
+            {
+                sscanf(line, "%*s %f %f %f",
+                    &materials[materials_count - 1].Kd[0],
+                    &materials[materials_count - 1].Kd[1],
+                    &materials[materials_count - 1].Kd[2]
+                );
+            }
+        }
+
+        fclose(file);
+    }
+
+#define BUFFER_SIZE 48
+    float buffer[BUFFER_SIZE] = {0};
+    const uint STRIDE = 6; // x y z  r g b
+
+    {
+    int active_material_index = 0; // default
+    uint index = 0;
+        FILE* file = fopen("rsc/obj/Data.obj", "r");
+
+        if (NULL == file)
+        {
+            return -1;
+            perror("- Failed to open: obj path");
+        }
+
+        char line[256] = {0};
+        while (NULL != fgets(line, sizeof(line), file))
+        {
+            char type[32] = {0};
+            if (1 != sscanf(line, "%31s", type))
+            {
+                continue;
+            }
+
+            if (0 == strcmp("usemtl", type))
+            {
+                char name[32] = {0};
+
+                sscanf(line, "%*s %31s",
+                    name
+                );
+
+                for (uint i = 0; i < MATERIAL_SIZE; i++)
+                {
+                    if (0 == strcmp(name, materials[i].name))
+                    {
+                        active_material_index = i;
+                    }
+                }
+            }
+
+            if (0 == strcmp("v", type))
+            {
+                sscanf(line, "%*s %f %f %f",
+                    &buffer[index * STRIDE + 0],
+                    &buffer[index * STRIDE + 1],
+                    &buffer[index * STRIDE + 2]
+                );
+                buffer[index * STRIDE + 3] = materials[active_material_index].Kd[0];
+                buffer[index * STRIDE + 4] = materials[active_material_index].Kd[1];
+                buffer[index * STRIDE + 5] = materials[active_material_index].Kd[2];
+
+                index++;
+            }
+        }
+
+        fclose(file);
+    }
+
+    // for (int i = 0; i < BUFFER_SIZE/STRIDE; i++)
+    // {
+    //     int base = i * STRIDE;
+    //     printf("%f %f %f  %f %f %f\n",
+    //        buffer[base + 0], buffer[base + 1], buffer[base + 2],
+    //        buffer[base + 3], buffer[base + 4], buffer[base + 5]
+    //     );
+    // } for debug
+
     unsigned int indices[] =
     {
-        0, 1, 2,
-        3, 0, 1
+        0, 1,
+        1, 3,
+        3, 2,
+        2, 0,
+
+        4, 5,
+        5, 7,
+        7, 6,
+        6, 4
     };
 
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), &buffer, GL_STATIC_DRAW);
 
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(0 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, STRIDE * sizeof(float), (void*)(0 * sizeof(float)));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, STRIDE * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     unsigned int ebo;
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 
 
     unsigned int shaderProgram = 0;
@@ -188,7 +307,7 @@ int main(void)
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
         glDrawElements(GL_POINTS, sizeof(indices)/sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-        glDrawElements(GL_LINE_STRIP, sizeof(indices)/sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_LINES, sizeof(indices)/sizeof(indices[0]), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
 
