@@ -20,7 +20,7 @@ chmod +x ./build.sh
 
 2. then build and run:
 ```bash
-    ./build.sh --run
+./build.sh --run
 ```
 
 #### Project naming conventions
