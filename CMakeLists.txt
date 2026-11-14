@@ -1,25 +1,7 @@
 cmake_minimum_required(VERSION 3.28 FATAL_ERROR)
 project(Graphics VERSION 0.0.0 LANGUAGES C)
 
-set(CMAKE_C_STANDARD 11)
-
-# hard coded for now
-# option(ENABLE_MSAN "Enable MemorySanitizer" ON)
-# if(ENABLE_MSAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-#     if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
-#         message(FATAL_ERROR "MemorySanitizer requires Clang")
-#     endif()
-
-#     add_compile_options(
-#         -O1
-#         -g
-#         -fsanitize=leak
-#         # -fsanitize=memory
-#         # -fno-omit-frame-pointer
-#         # -fsanitize-memory-track-origins=2
-#     )
-#     add_link_options(-fsanitize=leak)
-# endif()
+set(CMAKE_C_STANDARD 23)
 
 
 add_subdirectory(libs)

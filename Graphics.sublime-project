@@ -32,7 +32,7 @@
         {
             "name": "Build & Run Debug",
             "working_dir": "${project_path}",
-            "shell_cmd": "${project_path}/build.sh --build-type \"Debug\" --run -o \"Software\"",
+            "shell_cmd": "alacritty --hold -e ${project_path}/build.sh --build-type \"Debug\" --run -o \"Software\"",
             "quiet": true,
             "cancel":
             {
