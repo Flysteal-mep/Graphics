@@ -6,9 +6,7 @@ A graphics app for C
 Not to sure about it, yet :>
 
 ## Structure
-
-For now, only the C. Python support may come soon :)
-
+ 
 ## How to build
 
 In the project folder:

@@ -26,7 +26,7 @@ int main(void)
     }
 
     glfwMakeContextCurrent(window);
-    // glfwSwapInterval(0);
+    glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, glfw_FramebufferSizeCallback);
 
     if (!gladLoadGL(glfwGetProcAddress))
@@ -120,6 +120,8 @@ int main(void)
     gl_SetUniformInt(shaderProgram_0, "texture_u", 0);
 
 //
+    int frames = 0;
+    float lastTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -141,7 +143,19 @@ int main(void)
         glDrawArrays(GL_TRIANGLES, 0, VERTICES_COUNT);
 
 
-        // TODO implement a ms counter
+        frames++;
+        float now = glfwGetTime();
+        float elapsed = now - lastTime;
+
+        if (elapsed >= 1.0)
+        {
+            float mspf = 1000 / (frames / elapsed);
+
+            printf("MS/F: %2f \n", mspf);
+
+            frames = 0;
+            lastTime = now;
+        }
 
         glfwSwapBuffers(window);
     }
