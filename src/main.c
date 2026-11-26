@@ -88,8 +88,8 @@ int main(void)
 //
     // TODO Clean up this part of code.
 
-    #define TEXTURE_WIDTH 255
-    #define TEXTURE_HEIGHT 255
+    #define TEXTURE_WIDTH 500
+    #define TEXTURE_HEIGHT 500
 
     uint texture = 0;
 
@@ -142,6 +142,8 @@ int main(void)
         glBindTexture(GL_TEXTURE_2D, texture);
         glDrawArrays(GL_TRIANGLES, 0, VERTICES_COUNT);
 
+        gl_SetUniformFloat(shaderProgram_1, "uTime", glfwGetTime());
+
 
         frames++;
         float now = glfwGetTime();
@@ -150,7 +152,6 @@ int main(void)
         if (elapsed >= 1.0)
         {
             float mspf = 1000 / (frames / elapsed);
-
             printf("MS/F: %2f \n", mspf);
 
             frames = 0;
